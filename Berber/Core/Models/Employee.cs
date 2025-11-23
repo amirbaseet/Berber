@@ -9,9 +9,9 @@ namespace Berber.Core.Models
 {
     public class Employee : User
     {
-        public List<Service> ServicesCanDo { get; set; } = new();
-        public List<TimeRange> Availability { get; set; } = new();
-        public List<Appointment> Appointments { get; set; } = new();
+        public List<Service> ServicesCanDo { get; set; } = new List<Service>();
+        public List<TimeRange> Availability { get; set; } = new List<TimeRange>();
+        public List<Appointment> Appointments { get; set; } = new List<Appointment>();
 
         public Employee(int id, string name)
             : base(id, name, UserRole.Employee)
