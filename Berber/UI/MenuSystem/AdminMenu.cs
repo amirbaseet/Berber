@@ -10,6 +10,7 @@ namespace Berber.UI.MenuSystem
     public class AdminMenu
     {
         private readonly SalonManagementMenu _salonMenu = new SalonManagementMenu();
+        private readonly EmployeeManagementMenu _employeeMenu = new EmployeeManagementMenu();
 
         public void Show()
         {
@@ -28,6 +29,9 @@ namespace Berber.UI.MenuSystem
                 {
                     case 1:
                         _salonMenu.Show();
+                        break;
+                          case 2:
+                        _employeeMenu.Show();
                         break;
 
                     case 4:
