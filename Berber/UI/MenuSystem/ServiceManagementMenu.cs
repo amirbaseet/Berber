@@ -29,8 +29,11 @@ namespace Berber.UI.MenuSystem
                 ConsoleUIHelper.PrintOption(1, "View All Services");
                 ConsoleUIHelper.PrintOption(2, "Add New Service");
                 ConsoleUIHelper.PrintOption(3, "Edit Service Price");
-                ConsoleUIHelper.PrintOption(4, "Assign Service to Salon");
-                ConsoleUIHelper.PrintOption(5, "Back");
+                ConsoleUIHelper.PrintOption(4, "Edit Service Name");
+                ConsoleUIHelper.PrintOption(5, "Edit Service Duration");
+                ConsoleUIHelper.PrintOption(6, "Delete Service");
+                ConsoleUIHelper.PrintOption(7, "Assign Service to Salon");
+                ConsoleUIHelper.PrintOption(8, "Back");
 
                 int choice = InputHelper.ReadInt("Choose: ");
 
@@ -39,14 +42,111 @@ namespace Berber.UI.MenuSystem
                     case 1: ViewAllServices(); break;
                     case 2: AddService(); break;
                     case 3: EditServicePrice(); break;
-                    case 4: AssignServiceToSalon(); break;
-                    case 5: return;
+                    case 4: EditServiceName(); break;
+                    case 5: EditServiceDuration(); break;
+                    case 6: DeleteService(); break;
+                    case 7: AssignServiceToSalon(); break;
+                    case 8: return;
 
                     default:
                         ConsoleUIHelper.PrintError("Invalid choice.");
                         break;
                 }
             }
+        }
+        private void EditServiceDuration()
+        {
+            ConsoleUIHelper.Title("Edit Service Duration");
+
+            int id = InputHelper.ReadInt("Enter Service ID: ");
+            Service service = Database.Services.Find(s => s.Id == id);
+
+            if (service == null)
+            {
+                ConsoleUIHelper.PrintError("Service not found.");
+                ConsoleUIHelper.Pause();
+                return;
+            }
+
+            int newDuration = InputHelper.ReadInt("Enter new duration (minutes): ");
+
+            if (newDuration <= 0)
+            {
+                ConsoleUIHelper.PrintError("Duration must be greater than 0.");
+            }
+            else
+            {
+                service.DurationMinutes = newDuration;
+                ConsoleUIHelper.PrintSuccess("Service duration updated.");
+            }
+
+            ConsoleUIHelper.Pause();
+        }
+        private void DeleteService()
+        {
+            ConsoleUIHelper.Title("Delete Service");
+
+            int id = InputHelper.ReadInt("Enter Service ID: ");
+            Service service = Database.Services.Find(s => s.Id == id);
+
+            if (service == null)
+            {
+                ConsoleUIHelper.PrintError("Service not found.");
+                ConsoleUIHelper.Pause();
+                return;
+            }
+
+            // Check if service is part of any existing appointment
+            foreach (Appointment a in Database.Appointments)
+            {
+                if (a.Service == service)
+                {
+                    ConsoleUIHelper.PrintError(
+                        "Cannot delete service because it is used in existing appointments."
+                    );
+                    ConsoleUIHelper.Pause();
+                    return;
+                }
+            }
+
+            // Remove from all salons
+            foreach (Salon salon in Database.Salons)
+            {
+                salon.Services.Remove(service);
+            }
+
+            // Remove from all employees
+            foreach (Employee emp in Database.Employees)
+            {
+                emp.ServicesCanDo.Remove(service);
+            }
+
+            // Remove from database
+            Database.Services.Remove(service);
+
+            ConsoleUIHelper.PrintSuccess("Service successfully deleted.");
+            ConsoleUIHelper.Pause();
+        }
+
+        private void EditServiceName()
+        {
+            ConsoleUIHelper.Title("Edit Service Name");
+
+            int id = InputHelper.ReadInt("Enter Service ID: ");
+            Service service = Database.Services.Find(s => s.Id == id);
+
+            if (service == null)
+            {
+                ConsoleUIHelper.PrintError("Service not found.");
+                ConsoleUIHelper.Pause();
+                return;
+            }
+
+            string newName = InputHelper.ReadString("Enter new service name: ");
+            service.Name = newName;
+
+            ConsoleUIHelper.PrintSuccess("Service name updated.");
+            ConsoleUIHelper.Pause();
         }
 
         private void ViewAllServices()
