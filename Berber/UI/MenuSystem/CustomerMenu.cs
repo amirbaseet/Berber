@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Berber.Core.Models;
+using Berber.UI.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +8,48 @@ using System.Threading.Tasks;
 
 namespace Berber.UI.MenuSystem
 {
-    internal class CustomerMenu
+    public class CustomerMenu
     {
+        private readonly Customer _customer;
+
+        public CustomerMenu(Customer customer)
+        {
+            _customer = customer;
+        }
+
+        public void Show()
+        {
+            while (true)
+            {
+                ConsoleUIHelper.Title("Customer Menu");
+
+                ConsoleUIHelper.PrintOption(1, "Book Appointment");
+                ConsoleUIHelper.PrintOption(2, "My Appointments");
+                ConsoleUIHelper.PrintOption(3, "Back");
+
+                int choice = InputHelper.ReadInt("Choose: ");
+
+                switch (choice)
+                {
+                    case 1:
+                        ConsoleUIHelper.PrintSuccess("Booking coming soon...");
+                        ConsoleUIHelper.Pause();
+                        break;
+
+                    case 2:
+                        ConsoleUIHelper.PrintError("Viewing appointments coming soon...");
+                        ConsoleUIHelper.Pause();
+                        break;
+
+                    case 3:
+                        return;
+
+                    default:
+                        ConsoleUIHelper.PrintError("Invalid option.");
+                        break;
+                }
+            }
+        }
     }
+
 }
