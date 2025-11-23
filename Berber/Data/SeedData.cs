@@ -79,6 +79,10 @@ namespace Berber.Data
 
             Database.Employees.Add(e1);
             Database.Employees.Add(e2);
+
+            // ✅ REQUIRED FOR LOGIN
+            Database.Users.Add(e1);
+            Database.Users.Add(e2);
         }
     }
 
