@@ -29,26 +29,23 @@ namespace Berber.UI.MenuSystem
                 ConsoleUIHelper.PrintOption(1, "View All Salons");
                 ConsoleUIHelper.PrintOption(2, "Add New Salon");
                 ConsoleUIHelper.PrintOption(3, "Set Working Hours");
-                ConsoleUIHelper.PrintOption(4, "Back");
+                ConsoleUIHelper.PrintOption(4, "Edit Salon Name");
+                ConsoleUIHelper.PrintOption(5, "Edit Salon Address");
+                ConsoleUIHelper.PrintOption(6, "Delete Salon");
+                ConsoleUIHelper.PrintOption(7, "Back");
+
 
                 int choice = InputHelper.ReadInt("Choose: ");
 
                 switch (choice)
                 {
-                    case 1:
-                        ViewSalons();
-                        break;
-
-                    case 2:
-                        AddSalon();
-                        break;
-
-                    case 3:
-                        SetWorkingHours();
-                        break;
-
-                    case 4:
-                        return;
+                    case 1: ViewSalons(); break;
+                    case 2: AddSalon(); break;
+                    case 3: SetWorkingHours(); break;
+                    case 4: EditSalonName(); break;
+                    case 5: EditSalonAddress(); break;
+                    case 6: DeleteSalon(); break;
+                    case 7: return;
 
                     default:
                         ConsoleUIHelper.PrintError("Invalid option.");
@@ -130,6 +127,89 @@ namespace Berber.UI.MenuSystem
 
             ConsoleUIHelper.Pause();
         }
+        private void EditSalonName()
+        {
+            ConsoleUIHelper.Title("Edit Salon Name");
+
+            int id = InputHelper.ReadInt("Enter Salon ID: ");
+            Salon salon = _salonManager.GetSalonById(id);
+
+            if (salon == null)
+            {
+                ConsoleUIHelper.PrintError("Salon not found.");
+                ConsoleUIHelper.Pause();
+                return;
+            }
+
+            string newName = InputHelper.ReadString("Enter new salon name: ");
+            salon.Name = newName;
+
+            ConsoleUIHelper.PrintSuccess("Salon name updated successfully.");
+            ConsoleUIHelper.Pause();
+        }
+
+        private void EditSalonAddress()
+        {
+            ConsoleUIHelper.Title("Edit Salon Address");
+
+            int id = InputHelper.ReadInt("Enter Salon ID: ");
+            Salon salon = _salonManager.GetSalonById(id);
+
+            if (salon == null)
+            {
+                ConsoleUIHelper.PrintError("Salon not found.");
+                ConsoleUIHelper.Pause();
+                return;
+            }
+
+            string newAddress = InputHelper.ReadString("Enter new address: ");
+            salon.Address = newAddress;
+
+            ConsoleUIHelper.PrintSuccess("Salon address updated.");
+            ConsoleUIHelper.Pause();
+        }
+
+        private void DeleteSalon()
+        {
+            ConsoleUIHelper.Title("Delete Salon");
+
+            int id = InputHelper.ReadInt("Enter Salon ID: ");
+            Salon salon = _salonManager.GetSalonById(id);
+
+            if (salon == null)
+            {
+                ConsoleUIHelper.PrintError("Salon not found.");
+                ConsoleUIHelper.Pause();
+                return;
+            }
+
+            // Check employees
+            if (salon.Employees.Count > 0)
+            {
+                ConsoleUIHelper.PrintError("Cannot delete salon: it has employees assigned.");
+                ConsoleUIHelper.Pause();
+                return;
+            }
+
+            // Check appointments
+            foreach (Appointment a in Database.Appointments)
+            {
+                if (a.Salon == salon)
+                {
+                    ConsoleUIHelper.PrintError("Cannot delete salon: it has appointments in the system.");
+                    ConsoleUIHelper.Pause();
+                    return;
+                }
+            }
+
+            // Safe to delete
+            Database.Salons.Remove(salon);
+
+            ConsoleUIHelper.PrintSuccess("Salon deleted successfully.");
+            ConsoleUIHelper.Pause();
+        }
+
     }
+
 
 }
