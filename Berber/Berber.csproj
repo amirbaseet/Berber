@@ -71,6 +71,7 @@
     <Compile Include="UI\MenuSystem\CustomerMenu.cs" />
     <Compile Include="UI\MenuSystem\EmployeeMenu.cs" />
     <Compile Include="UI\MenuSystem\MainMenu.cs" />
+    <Compile Include="UI\MenuSystem\SalonManagementMenu.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

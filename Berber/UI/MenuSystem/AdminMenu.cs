@@ -9,15 +9,17 @@ namespace Berber.UI.MenuSystem
 {
     public class AdminMenu
     {
+        private readonly SalonManagementMenu _salonMenu = new SalonManagementMenu();
+
         public void Show()
         {
             while (true)
             {
                 ConsoleUIHelper.Title("Admin Menu");
 
-                ConsoleUIHelper.PrintOption(1, "Manage Salons");
-                ConsoleUIHelper.PrintOption(2, "Manage Employees");
-                ConsoleUIHelper.PrintOption(3, "Manage Services");
+                ConsoleUIHelper.PrintOption(1, "Salon Management");
+                ConsoleUIHelper.PrintOption(2, "Employee Management (coming soon)");
+                ConsoleUIHelper.PrintOption(3, "Service Management (coming soon)");
                 ConsoleUIHelper.PrintOption(4, "Back");
 
                 int choice = InputHelper.ReadInt("Choose: ");
@@ -25,18 +27,7 @@ namespace Berber.UI.MenuSystem
                 switch (choice)
                 {
                     case 1:
-                        ConsoleUIHelper.PrintSuccess("Salon management coming soon...");
-                        ConsoleUIHelper.Pause();
-                        break;
-
-                    case 2:
-                        ConsoleUIHelper.PrintSuccess("Employee management coming soon...");
-                        ConsoleUIHelper.Pause();
-                        break;
-
-                    case 3:
-                        ConsoleUIHelper.PrintSuccess("Service management coming soon...");
-                        ConsoleUIHelper.Pause();
+                        _salonMenu.Show();
                         break;
 
                     case 4:
@@ -49,5 +40,6 @@ namespace Berber.UI.MenuSystem
             }
         }
     }
-
 }
+
+
