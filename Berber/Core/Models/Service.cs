@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Berber.Core.Models
 {
-    internal class Service
+    public class Service
     {
     }
 }

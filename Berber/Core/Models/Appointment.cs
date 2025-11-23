@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Berber.Core.Models
 {
-    internal class Appointment
+    public class Appointment
     {
     }
 }

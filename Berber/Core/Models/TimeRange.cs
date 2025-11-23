@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Berber.Core.Models
 {
-    internal class TimeRange
+    public class TimeRange
     {
         public DateTime Start { get; set; }
         public DateTime End { get; set; }

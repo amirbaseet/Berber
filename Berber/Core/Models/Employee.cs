@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Berber.Core.Models.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,20 @@ using System.Threading.Tasks;
 
 namespace Berber.Core.Models
 {
-    internal class Employee
+    public class Employee : User
     {
+        public List<Service> ServicesCanDo { get; set; } = new();
+        public List<TimeRange> Availability { get; set; } = new();
+        public List<Appointment> Appointments { get; set; } = new();
+
+        public Employee(int id, string name)
+            : base(id, name, UserRole.Employee)
+        {
+        }
+
+        public bool CanPerform(Service service)
+        {
+            return ServicesCanDo.Contains(service);
+        }
     }
 }
