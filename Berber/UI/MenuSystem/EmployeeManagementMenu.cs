@@ -33,7 +33,11 @@ namespace Berber.UI.MenuSystem
                 ConsoleUIHelper.PrintOption(3, "Assign Service to Employee");
                 ConsoleUIHelper.PrintOption(4, "Add Employee to Salon");
                 ConsoleUIHelper.PrintOption(5, "View Employee Skills");
-                ConsoleUIHelper.PrintOption(6, "Back");
+                ConsoleUIHelper.PrintOption(6, "Edit Employee Name");
+                ConsoleUIHelper.PrintOption(7, "Remove Employee");
+                ConsoleUIHelper.PrintOption(8, "Remove Employee Skill");
+                ConsoleUIHelper.PrintOption(9, "Remove Employee from Salon");
+                ConsoleUIHelper.PrintOption(10, "Back");
 
                 int choice = InputHelper.ReadInt("Choose: ");
 
@@ -44,7 +48,11 @@ namespace Berber.UI.MenuSystem
                     case 3: AssignService(); break;
                     case 4: AddEmployeeToSalon(); break;
                     case 5: ViewEmployeeSkills(); break;
-                    case 6: return;
+                    case 6: EditEmployeeName(); break;
+                    case 7: RemoveEmployee(); break;
+                    case 8: RemoveEmployeeSkill(); break;
+                    case 9: RemoveEmployeeFromSalon(); break;
+                    case 10: return;
                     default: ConsoleUIHelper.PrintError("Invalid choice."); break;
                 }
             }
@@ -186,5 +194,142 @@ namespace Berber.UI.MenuSystem
 
             ConsoleUIHelper.Pause();
         }
+        private void EditEmployeeName()
+        {
+            ConsoleUIHelper.Title("Edit Employee Name");
+
+            int id = InputHelper.ReadInt("Enter Employee ID: ");
+            Employee employee = Database.Employees.Find(e => e.Id == id);
+
+            if (employee == null)
+            {
+                ConsoleUIHelper.PrintError("Employee not found.");
+                ConsoleUIHelper.Pause();
+                return;
+            }
+
+            string newName = InputHelper.ReadString("Enter new name: ");
+            employee.Name = newName;
+
+            ConsoleUIHelper.PrintSuccess("Employee name updated successfully.");
+            ConsoleUIHelper.Pause();
+        }
+
+        private void RemoveEmployee()
+        {
+            ConsoleUIHelper.Title("Remove Employee");
+
+            int id = InputHelper.ReadInt("Enter Employee ID: ");
+            Employee employee = Database.Employees.Find(e => e.Id == id);
+
+            if (employee == null)
+            {
+                ConsoleUIHelper.PrintError("Employee not found.");
+                ConsoleUIHelper.Pause();
+                return;
+            }
+
+            // Remove from all salons
+            foreach (Salon salon in Database.Salons)
+            {
+                salon.Employees.Remove(employee);
+            }
+
+            // Remove appointments
+            Database.Appointments.RemoveAll(a => a.Employee == employee);
+
+            // Remove from employee list and user list
+            Database.Employees.Remove(employee);
+            Database.Users.Remove(employee);
+
+            ConsoleUIHelper.PrintSuccess("Employee removed successfully.");
+            ConsoleUIHelper.Pause();
+        }
+
+        private void RemoveEmployeeSkill()
+        {
+            ConsoleUIHelper.Title("Remove Employee Skill");
+
+            int id = InputHelper.ReadInt("Enter Employee ID: ");
+            Employee employee = Database.Employees.Find(e => e.Id == id);
+
+            if (employee == null)
+            {
+                ConsoleUIHelper.PrintError("Employee not found.");
+                ConsoleUIHelper.Pause();
+                return;
+            }
+
+            if (employee.ServicesCanDo.Count == 0)
+            {
+                ConsoleUIHelper.PrintError("Employee has no skills assigned.");
+                ConsoleUIHelper.Pause();
+                return;
+            }
+
+            Console.WriteLine("Services employee can perform:");
+            foreach (Service s in employee.ServicesCanDo)
+            {
+                Console.WriteLine($"{s.Id} - {s.Name}");
+            }
+
+            int serviceId = InputHelper.ReadInt("Enter Service ID to remove: ");
+            Service service = employee.ServicesCanDo.Find(s => s.Id == serviceId);
+
+            if (service == null)
+            {
+                ConsoleUIHelper.PrintError("Service not found in this employee's skills.");
+            }
+            else
+            {
+                employee.ServicesCanDo.Remove(service);
+                ConsoleUIHelper.PrintSuccess("Skill removed.");
+            }
+
+            ConsoleUIHelper.Pause();
+        }
+        private void RemoveEmployeeFromSalon()
+        {
+            ConsoleUIHelper.Title("Remove Employee from Salon");
+
+            int empId = InputHelper.ReadInt("Enter Employee ID: ");
+            Employee employee = Database.Employees.Find(e => e.Id == empId);
+
+            if (employee == null)
+            {
+                ConsoleUIHelper.PrintError("Employee not found.");
+                ConsoleUIHelper.Pause();
+                return;
+            }
+
+            Console.WriteLine("Available Salons:");
+            foreach (Salon s in Database.Salons)
+            {
+                Console.WriteLine($"{s.Id} - {s.Name}");
+            }
+
+            int salonId = InputHelper.ReadInt("Select Salon ID: ");
+            Salon salon = Database.Salons.Find(s => s.Id == salonId);
+
+            if (salon == null)
+            {
+                ConsoleUIHelper.PrintError("Salon not found.");
+                ConsoleUIHelper.Pause();
+                return;
+            }
+
+            if (!salon.Employees.Contains(employee))
+            {
+                ConsoleUIHelper.PrintError("Employee does not work at this salon.");
+            }
+            else
+            {
+                salon.Employees.Remove(employee);
+                ConsoleUIHelper.PrintSuccess("Employee removed from salon.");
+            }
+
+            ConsoleUIHelper.Pause();
+        }
+
     }
 }
