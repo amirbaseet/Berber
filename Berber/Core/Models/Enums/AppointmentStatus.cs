@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Berber.Core.Models.Enums
 {
-    internal enum AppointmentStatus
+    public enum AppointmentStatus
     {
         Pending = 1,
         Approved = 2,
