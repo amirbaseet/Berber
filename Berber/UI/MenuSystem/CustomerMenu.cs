@@ -32,9 +32,9 @@ namespace Berber.UI.MenuSystem
                 switch (choice)
                 {
                     case 1:
-                        ConsoleUIHelper.PrintSuccess("Booking coming soon...");
-                        ConsoleUIHelper.Pause();
+                        new CustomerBookingMenu(_customer).Show();
                         break;
+
 
                     case 2:
                         ConsoleUIHelper.PrintError("Viewing appointments coming soon...");

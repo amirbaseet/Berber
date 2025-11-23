@@ -69,6 +69,7 @@
     <Compile Include="UI\Helpers\InputHelper.cs" />
     <Compile Include="UI\MenuSystem\AdminMenu.cs" />
     <Compile Include="UI\MenuSystem\AppointmentManagementMenu.cs" />
+    <Compile Include="UI\MenuSystem\CustomerBookingMenu.cs" />
     <Compile Include="UI\MenuSystem\CustomerMenu.cs" />
     <Compile Include="UI\MenuSystem\EmployeeManagementMenu.cs" />
     <Compile Include="UI\MenuSystem\EmployeeMenu.cs" />
