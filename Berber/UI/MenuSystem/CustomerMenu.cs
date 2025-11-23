@@ -25,7 +25,8 @@ namespace Berber.UI.MenuSystem
 
                 ConsoleUIHelper.PrintOption(1, "Book Appointment");
                 ConsoleUIHelper.PrintOption(2, "My Appointments");
-                ConsoleUIHelper.PrintOption(3, "Back");
+                ConsoleUIHelper.PrintOption(3, "Cancel Appointment");
+                ConsoleUIHelper.PrintOption(4, "Back");
 
                 int choice = InputHelper.ReadInt("Choose: ");
 
@@ -42,6 +43,10 @@ namespace Berber.UI.MenuSystem
                         break;
 
                     case 3:
+                        new CustomerCancelMenu(_customer).Show();
+                        break;
+
+                    case 4:
                         return;
 
                     default:
