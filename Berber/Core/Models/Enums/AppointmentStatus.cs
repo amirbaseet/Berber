@@ -6,7 +6,12 @@ using System.Threading.Tasks;
 
 namespace Berber.Core.Models.Enums
 {
-    internal class AppointmentStatus
+    internal enum AppointmentStatus
     {
+        Pending = 1,
+        Approved = 2,
+        Rejected = 3,
+        Cancelled = 4
+
     }
 }

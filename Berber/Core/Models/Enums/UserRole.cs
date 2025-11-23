@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace Berber.Core.Models.Enums
 {
-    internal class UserRole
+    internal enum UserRole
     {
+        Customer = 1,
+        Employee = 2,
+        Admin = 3
     }
 }
