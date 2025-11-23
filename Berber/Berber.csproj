@@ -43,11 +43,38 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\Interfaces\IAppointmentManager.cs" />
+    <Compile Include="Core\Interfaces\IEmployeeManager.cs" />
+    <Compile Include="Core\Interfaces\ISalonManager.cs" />
+    <Compile Include="Core\Interfaces\IUserManager.cs" />
+    <Compile Include="Core\Managers\AppointmentManager.cs" />
+    <Compile Include="Core\Managers\EmployeeManager.cs" />
+    <Compile Include="Core\Managers\SalonManager.cs" />
+    <Compile Include="Core\Managers\UserManager.cs" />
+    <Compile Include="Core\Models\Admin.cs" />
+    <Compile Include="Core\Models\Appointment.cs" />
+    <Compile Include="Core\Models\Customer.cs" />
+    <Compile Include="Core\Models\Employee.cs" />
+    <Compile Include="Core\Models\Enums\AppointmentStatus.cs" />
+    <Compile Include="Core\Models\Enums\UserRole.cs" />
+    <Compile Include="Core\Models\Salon.cs" />
+    <Compile Include="Core\Models\Service.cs" />
+    <Compile Include="Core\Models\TimeRange.cs" />
+    <Compile Include="Core\Models\User.cs" />
+    <Compile Include="Data\Database.cs" />
+    <Compile Include="Data\SeedData.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UI\Helpers\ConsoleUIHelper.cs" />
+    <Compile Include="UI\Helpers\InputHelper.cs" />
+    <Compile Include="UI\MenuSystem\AdminMenu.cs" />
+    <Compile Include="UI\MenuSystem\CustomerMenu.cs" />
+    <Compile Include="UI\MenuSystem\EmployeeMenu.cs" />
+    <Compile Include="UI\MenuSystem\MainMenu.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
