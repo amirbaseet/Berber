@@ -33,6 +33,9 @@ namespace Berber.UI.MenuSystem
                           case 2:
                         _employeeMenu.Show();
                         break;
+                    case 3:
+                        new ServiceManagementMenu().Show();
+                        break;
 
                     case 4:
                         return;
