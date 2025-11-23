@@ -28,23 +28,17 @@ namespace Berber.UI.MenuSystem
 
                 ConsoleUIHelper.PrintOption(1, "View My Appointments");
                 ConsoleUIHelper.PrintOption(2, "Add Availability");
-                ConsoleUIHelper.PrintOption(3, "Back");
+                ConsoleUIHelper.PrintOption(3, "View Weekly Schedule"); 
+                ConsoleUIHelper.PrintOption(4, "Back");
 
                 int choice = InputHelper.ReadInt("Choose: ");
 
                 switch (choice)
                 {
-                    case 1:
-                        ViewAppointments();
-                        break;
-
-                    case 2:
-                        AddAvailability();
-                        break;
-
-                    case 3:
-                        return;
-
+                    case 1: ViewAppointments(); break;
+                    case 2: AddAvailability(); break;
+                    case 3: new EmployeeScheduleMenu(_employee).Show(); break;  // NEW
+                    case 4: return;
                     default:
                         ConsoleUIHelper.PrintError("Invalid option.");
                         break;

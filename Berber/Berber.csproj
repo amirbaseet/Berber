@@ -75,6 +75,7 @@
     <Compile Include="UI\MenuSystem\CustomerRescheduleMenu.cs" />
     <Compile Include="UI\MenuSystem\EmployeeManagementMenu.cs" />
     <Compile Include="UI\MenuSystem\EmployeeMenu.cs" />
+    <Compile Include="UI\MenuSystem\EmployeeScheduleMenu.cs" />
     <Compile Include="UI\MenuSystem\MainMenu.cs" />
     <Compile Include="UI\MenuSystem\SalonManagementMenu.cs" />
     <Compile Include="UI\MenuSystem\ServiceManagementMenu.cs" />
