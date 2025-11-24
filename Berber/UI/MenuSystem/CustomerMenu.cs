@@ -1,4 +1,5 @@
 ﻿using Berber.Core.Models;
+using Berber.Data;
 using Berber.UI.Helpers;
 using System;
 using System.Collections.Generic;
@@ -39,8 +40,7 @@ namespace Berber.UI.MenuSystem
 
 
                     case 2:
-                        ConsoleUIHelper.PrintError("Viewing appointments coming soon...");
-                        ConsoleUIHelper.Pause();
+                        ShowAppointments();
                         break;
 
                     case 3:
@@ -60,6 +60,32 @@ namespace Berber.UI.MenuSystem
                 }
             }
         }
+        private void ShowAppointments()
+        {
+            ConsoleUIHelper.Title("My Appointments");
+
+            var myAppointments = Database.Appointments
+                .Where(a => a.Customer.Id == _customer.Id)
+                .OrderBy(a => a.StartTime)
+                .ToList();
+
+            if (myAppointments.Count == 0)
+            {
+                ConsoleUIHelper.PrintError("You have no appointments.");
+            }
+            else
+            {
+                foreach (Appointment appt in myAppointments)
+                {
+                    Console.WriteLine(
+                        $"#{appt.Id} | {appt.Service.Name} | {appt.StartTime} | {appt.Status}"
+                    );
+                }
+            }
+
+            ConsoleUIHelper.Pause();
+        }
+
     }
 
 }

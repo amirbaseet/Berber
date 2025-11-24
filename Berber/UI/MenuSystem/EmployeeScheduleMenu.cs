@@ -79,8 +79,10 @@ namespace Berber.UI.MenuSystem
         {
             ConsoleUIHelper.Title("Day Schedule Details");
 
+            // Ask for date
             DateTime day = InputHelper.ReadDateTime("Enter date (yyyy-MM-dd): ").Date;
 
+            // Filter appointments by date
             List<Appointment> appointments = _employee.Appointments
                 .Where(a => a.StartTime.Date == day)
                 .OrderBy(a => a.StartTime)
@@ -100,11 +102,13 @@ namespace Berber.UI.MenuSystem
             foreach (Appointment a in appointments)
             {
                 Console.WriteLine(
-                    $"{a.StartTime:HH:mm} - {a.EndTime:HH:mm} | {a.Service.Name} | Customer: {a.Customer.Name} | Status: {a.Status}"
+                    $"{a.StartTime:HH:mm} - {a.EndTime:HH:mm} | " +
+                    $"{a.Service.Name} | Customer: {a.Customer.Name} | Status: {a.Status}"
                 );
             }
 
             ConsoleUIHelper.Pause();
         }
+
     }
 }
