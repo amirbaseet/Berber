@@ -25,15 +25,15 @@ namespace Berber.Data
             // --- Create Salon ---
             Salon salon = new Salon(1, "Golden Scissors", "Main Street 45");
 
-            // Working hours: Monday–Friday 09:00 - 18:00
-            for (int i = 1; i <= 5; i++)
-            {
-                DateTime start = DateTime.Today.AddDays(i).Date.AddHours(9);
-                DateTime end = DateTime.Today.AddDays(i).Date.AddHours(18);
+            // Working hours: Monday–Friday 09:00 - 18:00 (time-only)
+            DateTime open = new DateTime(1, 1, 1, 9, 0, 0);   // 09:00
+            DateTime close = new DateTime(1, 1, 1, 18, 0, 0); // 18:00
 
-                salon.WorkingHours[(DayOfWeek)i] =
-                    new TimeRange(start, end);
-            }
+            salon.WorkingHours[DayOfWeek.Monday] = new TimeRange(open, close);
+            salon.WorkingHours[DayOfWeek.Tuesday] = new TimeRange(open, close);
+            salon.WorkingHours[DayOfWeek.Wednesday] = new TimeRange(open, close);
+            salon.WorkingHours[DayOfWeek.Thursday] = new TimeRange(open, close);
+            salon.WorkingHours[DayOfWeek.Friday] = new TimeRange(open, close);
 
             Database.Salons.Add(salon);
 
@@ -55,7 +55,7 @@ namespace Berber.Data
             Employee e1 = new Employee(10, "Mike");
             Employee e2 = new Employee(11, "Alex");
 
-            // Assign skills
+            // Assign service skills
             e1.ServicesCanDo.Add(haircut);
             e1.ServicesCanDo.Add(beard);
 
@@ -66,24 +66,32 @@ namespace Berber.Data
             salon.Employees.Add(e1);
             salon.Employees.Add(e2);
 
-            // Add availability
+            // --- Employee Availability (Time-only, no specific day)
+            // They will be available every day the customer tries booking,
+            // but booking will compare weekday & salon working hours.
+
+            // Mike: 09:00 - 17:00
             e1.Availability.Add(new TimeRange(
-                DateTime.Today.AddHours(9),
-                DateTime.Today.AddHours(17)
+                new DateTime(1, 1, 1, 9, 0, 0),
+                new DateTime(1, 1, 1, 17, 0, 0)
             ));
 
+            // Alex: 10:00 - 18:00
             e2.Availability.Add(new TimeRange(
-                DateTime.Today.AddHours(10),
-                DateTime.Today.AddHours(18)
+                new DateTime(1, 1, 1, 10, 0, 0),
+                new DateTime(1, 1, 1, 18, 0, 0)
             ));
 
+            // Add to database lists
             Database.Employees.Add(e1);
             Database.Employees.Add(e2);
 
-            // ✅ REQUIRED FOR LOGIN
+            // Add employees to users (required for login)
             Database.Users.Add(e1);
             Database.Users.Add(e2);
         }
+
+
     }
 
 }

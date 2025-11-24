@@ -57,6 +57,37 @@ namespace Berber.UI.MenuSystem
                 }
             }
         }
+        private List<DateTime> GetNext7Days()
+        {
+            List<DateTime> days = new List<DateTime>();
+            DateTime today = DateTime.Today;
+
+            for (int i = 0; i < 7; i++)
+            {
+                days.Add(today.AddDays(i));
+            }
+
+            return days;
+        }
+
+        private DateTime ChooseDayFromNext7Days()
+        {
+            List<DateTime> days = GetNext7Days();
+
+            ConsoleUIHelper.Title("Select a Day");
+
+            for (int i = 0; i < days.Count; i++)
+            {
+                Console.WriteLine($"{i + 1}. {days[i]:ddd yyyy-MM-dd}");
+            }
+
+            int choice = InputHelper.ReadInt("Choose day: ") - 1;
+
+            if (choice < 0 || choice >= days.Count)
+                return DateTime.MinValue;
+
+            return days[choice];
+        }
 
         private void StartBooking()
         {
@@ -72,36 +103,49 @@ namespace Berber.UI.MenuSystem
             Employee employee = ChooseEmployee(salon, service);
             if (employee == null) return;
 
-            // Step 4 — Choose Date & Time
-            DateTime startTime = InputHelper.ReadDateTime("Enter appointment start time (yyyy-MM-dd HH:mm): ");
-
-            // Validate salon open
-            if (!_salonManager.IsSalonOpen(salon, startTime))
+            // Step 4 — Pick day from next 7 days
+            DateTime date = ChooseDayFromNext7Days();
+            if (date == DateTime.MinValue)
             {
-                ConsoleUIHelper.PrintError("Salon is not open at this time.");
+                ConsoleUIHelper.PrintError("Invalid day selection.");
                 ConsoleUIHelper.Pause();
                 return;
             }
 
-            // Step 5 — Check employee availability
-            DateTime endTime = startTime.AddMinutes(service.DurationMinutes);
+            // Step 5 — Generate available slots for selected day
+            List<DateTime> slots = GenerateAvailableTimeSlots(salon, employee, service, date);
 
-            if (!_employeeManager.IsEmployeeAvailable(employee, startTime, endTime))
+            if (slots.Count == 0)
             {
-                ConsoleUIHelper.PrintError("Employee is not available during this time.");
+                ConsoleUIHelper.PrintError("No available time slots for this day.");
                 ConsoleUIHelper.Pause();
                 return;
             }
 
-            // Step 6 — Check appointment conflicts
-            if (_appointmentManager.HasConflict(employee, startTime, endTime))
+            ConsoleUIHelper.Title(
+                $"Available Slots for {date:ddd yyyy-MM-dd} ({service.DurationMinutes} min)"
+            );
+
+            for (int i = 0; i < slots.Count; i++)
             {
-                ConsoleUIHelper.PrintError("Employee already has an appointment at this time.");
+                DateTime start = slots[i];
+                DateTime end = start.AddMinutes(service.DurationMinutes);
+
+                Console.WriteLine($"{i + 1}. {start:HH:mm} - {end:HH:mm}");
+            }
+
+            int slotChoice = InputHelper.ReadInt("Choose time slot: ") - 1;
+
+            if (slotChoice < 0 || slotChoice >= slots.Count)
+            {
+                ConsoleUIHelper.PrintError("Invalid time slot.");
                 ConsoleUIHelper.Pause();
                 return;
             }
 
-            // Step 7 — Create the appointment
+            DateTime startTime = slots[slotChoice];
+
+            // Step 6 — Create appointment
             int newId = Database.Appointments.Count + 1;
 
             Appointment appt = _appointmentManager.CreateAppointment(
@@ -110,7 +154,7 @@ namespace Berber.UI.MenuSystem
 
             if (appt == null)
             {
-                ConsoleUIHelper.PrintError("Could not create appointment.");
+                ConsoleUIHelper.PrintError("Failed to create appointment.");
             }
             else
             {
@@ -193,6 +237,49 @@ namespace Berber.UI.MenuSystem
 
             ConsoleUIHelper.Pause();
         }
+        private List<DateTime> GenerateAvailableTimeSlots(Salon salon, Employee employee, Service service, DateTime date)
+        {
+            List<DateTime> slots = new List<DateTime>();
+
+            // 1. Check if salon has working hours for that weekday
+            if (!salon.WorkingHours.ContainsKey(date.DayOfWeek))
+                return slots;
+
+            TimeRange salonHours = salon.WorkingHours[date.DayOfWeek];
+
+            // Convert time-only to full DateTime using selected day
+            DateTime dayStart = new DateTime(date.Year, date.Month, date.Day,
+                salonHours.Start.Hour, salonHours.Start.Minute, 0);
+
+            DateTime dayEnd = new DateTime(date.Year, date.Month, date.Day,
+                salonHours.End.Hour, salonHours.End.Minute, 0);
+
+            // Cannot start after this time (service must fit in closing hours)
+            DateTime lastPossibleStart = dayEnd.AddMinutes(-service.DurationMinutes);
+
+            DateTime current = dayStart;
+
+            while (current <= lastPossibleStart)
+            {
+                DateTime slotStart = current;
+                DateTime slotEnd = slotStart.AddMinutes(service.DurationMinutes);
+
+                bool employeeAvailable =
+                    _employeeManager.IsEmployeeAvailable(employee, slotStart, slotEnd);
+
+                bool noConflict =
+                    !_appointmentManager.HasConflict(employee, slotStart, slotEnd);
+
+                if (employeeAvailable && noConflict)
+                    slots.Add(slotStart);
+
+                current = current.AddMinutes(15);
+            }
+
+            return slots;
+        }
+
+
     }
 
 }

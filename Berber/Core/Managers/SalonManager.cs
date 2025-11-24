@@ -42,9 +42,25 @@ namespace Berber.Core.Managers
             return _salons;
         }
 
-        public bool IsSalonOpen(Salon salon, DateTime dateTime)
+        public bool IsSalonOpen(Salon salon, DateTime dt)
         {
-            return salon.IsOpenAt(dateTime);
+            if (!salon.WorkingHours.ContainsKey(dt.DayOfWeek))
+                return false;
+
+            TimeRange range = salon.WorkingHours[dt.DayOfWeek];
+
+            // Convert time-only to full DateTime for the selected date
+            DateTime openTime = new DateTime(
+                dt.Year, dt.Month, dt.Day,
+                range.Start.Hour, range.Start.Minute, 0
+            );
+
+            DateTime closeTime = new DateTime(
+                dt.Year, dt.Month, dt.Day,
+                range.End.Hour, range.End.Minute, 0
+            );
+
+            return dt >= openTime && dt <= closeTime;
         }
     }
 }
