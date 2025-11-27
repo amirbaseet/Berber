@@ -57,7 +57,7 @@ namespace Berber.Data
 
             // Assign service skills
             e1.ServicesCanDo.Add(haircut);
-            //
+            //testttt
             e1.ServicesCanDo.Add(beard);
 
             e2.ServicesCanDo.Add(haircut);
