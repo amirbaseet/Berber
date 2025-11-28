@@ -54,6 +54,7 @@ namespace Berber.Data
             // --- Create Employees ---
             Employee e1 = new Employee(10, "Mike");
             Employee e2 = new Employee(11, "Alex");
+            Employee e3 = new Employee(12, "x");
 
             // Assign service skills
             e1.ServicesCanDo.Add(haircut);
