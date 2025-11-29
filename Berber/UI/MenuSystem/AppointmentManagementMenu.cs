@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Berber.Core.Utils;
 
 namespace Berber.UI.MenuSystem
 {
@@ -32,7 +33,9 @@ namespace Berber.UI.MenuSystem
                 ConsoleUIHelper.PrintOption(3, "Approve Appointment");
                 ConsoleUIHelper.PrintOption(4, "Reject Appointment");
                 ConsoleUIHelper.PrintOption(5, "Cancel Appointment");
-                ConsoleUIHelper.PrintOption(6, "Back");
+                ConsoleUIHelper.PrintOption(6, "View Daily Schedule");
+
+                ConsoleUIHelper.PrintOption(7, "Back");
 
                 int choice = InputHelper.ReadInt("Choose: ");
 
@@ -43,7 +46,8 @@ namespace Berber.UI.MenuSystem
                     case 3: Approve(); break;
                     case 4: Reject(); break;
                     case 5: Cancel(); break;
-                    case 6: return;
+                    case 6: ViewDailySchedule(); break;
+                    case 7: return;
 
                     default:
                         ConsoleUIHelper.PrintError("Invalid option.");
@@ -67,6 +71,44 @@ namespace Berber.UI.MenuSystem
                     Console.WriteLine(
                         $"#{a.Id} | {a.Customer.Name} | {a.Service.Name} | {a.StartTime} | {a.Status}");
                 }
+            }
+
+            ConsoleUIHelper.Pause();
+        }
+        private void ViewDailySchedule()
+        {
+            DateTime day = CalendarHelper.SelectDayFromNext7Days("Select a Day");
+
+            if (day == DateTime.MinValue)
+            {
+                ConsoleUIHelper.PrintError("Invalid day.");
+                ConsoleUIHelper.Pause();
+                return;
+            }
+
+            ConsoleUIHelper.Title($"Appointments for {day:ddd yyyy-MM-dd}");
+
+            var list = Database.Appointments
+                .Where(a => a.StartTime.Date == day.Date)
+                .OrderBy(a => a.StartTime)
+                .ToList();
+
+            if (list.Count == 0)
+            {
+                ConsoleUIHelper.PrintError("No appointments for this day.");
+                ConsoleUIHelper.Pause();
+                return;
+            }
+
+            ConsoleUIHelper.Line();
+
+            foreach (var appt in list)
+            {
+                Console.WriteLine(
+                    $"#{appt.Id} | {appt.StartTime:HH:mm} - {appt.EndTime:HH:mm} | " +
+                    $"{appt.Service.Name} | Employee: {appt.Employee.Name} | " +
+                    $"Customer: {appt.Customer.Name} | Status: {appt.Status}"
+                );
             }
 
             ConsoleUIHelper.Pause();

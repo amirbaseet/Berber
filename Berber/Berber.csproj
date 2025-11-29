@@ -61,6 +61,7 @@
     <Compile Include="Core\Models\Service.cs" />
     <Compile Include="Core\Models\TimeRange.cs" />
     <Compile Include="Core\Models\User.cs" />
+    <Compile Include="Core\Utils\CalendarHelper.cs" />
     <Compile Include="Data\Database.cs" />
     <Compile Include="Data\SeedData.cs" />
     <Compile Include="Program.cs" />

@@ -1,6 +1,7 @@
 ﻿using Berber.Core.Interfaces;
 using Berber.Core.Managers;
 using Berber.Core.Models;
+using Berber.Core.Utils;
 using Berber.Data;
 using Berber.UI.Helpers;
 using System;
@@ -91,81 +92,53 @@ namespace Berber.UI.MenuSystem
 
         private void StartBooking()
         {
-            // Step 1 — Choose Salon
+            // 1. Choose salon
             Salon salon = ChooseSalon();
             if (salon == null) return;
 
-            // Step 2 — Choose Service
+            // 2. Choose service
             Service service = ChooseService(salon);
             if (service == null) return;
 
-            // Step 3 — Choose Employee
+            // 3. Choose employee
             Employee employee = ChooseEmployee(salon, service);
             if (employee == null) return;
 
-            // Step 4 — Pick day from next 7 days
-            DateTime date = ChooseDayFromNext7Days();
-            if (date == DateTime.MinValue)
-            {
-                ConsoleUIHelper.PrintError("Invalid day selection.");
-                ConsoleUIHelper.Pause();
-                return;
-            }
+            // 4. Choose a day
+            DateTime day = CalendarHelper.SelectDayFromNext7Days("Select a Day");
+            if (day == DateTime.MinValue) return;
 
-            // Step 5 — Generate available slots for selected day
-            List<DateTime> slots = GenerateAvailableTimeSlots(salon, employee, service, date);
+            // 5. Get available slots
+            var slots = GenerateAvailableTimeSlots(salon, employee, service, day);
 
             if (slots.Count == 0)
             {
-                ConsoleUIHelper.PrintError("No available time slots for this day.");
+                ConsoleUIHelper.PrintError("No available slots for this day.");
                 ConsoleUIHelper.Pause();
                 return;
             }
 
-            ConsoleUIHelper.Title(
-                $"Available Slots for {date:ddd yyyy-MM-dd} ({service.DurationMinutes} min)"
-            );
-
+            ConsoleUIHelper.Title("Available Slots");
             for (int i = 0; i < slots.Count; i++)
             {
-                DateTime start = slots[i];
-                DateTime end = start.AddMinutes(service.DurationMinutes);
-
-                Console.WriteLine($"{i + 1}. {start:HH:mm} - {end:HH:mm}");
+                Console.WriteLine($"{i + 1}. {slots[i]:HH:mm} - {slots[i].AddMinutes(service.DurationMinutes):HH:mm}");
             }
 
-            int slotChoice = InputHelper.ReadInt("Choose time slot: ") - 1;
+            int choice = InputHelper.ReadInt("Choose slot: ") - 1;
+            if (choice < 0 || choice >= slots.Count) return;
 
-            if (slotChoice < 0 || slotChoice >= slots.Count)
-            {
-                ConsoleUIHelper.PrintError("Invalid time slot.");
-                ConsoleUIHelper.Pause();
-                return;
-            }
+            DateTime start = slots[choice];
 
-            DateTime startTime = slots[slotChoice];
-
-            // Step 6 — Create appointment
-            int newId = Database.Appointments.Count + 1;
-
-            Appointment appt = _appointmentManager.CreateAppointment(
-                newId, _customer, salon, employee, service, startTime
+            Appointment appt = new Appointment(
+                Database.Appointments.Count + 1,
+                _customer, salon, employee, service, start
             );
 
-            if (appt == null)
-            {
-                ConsoleUIHelper.PrintError("Failed to create appointment.");
-            }
-            else
-            {
-                ConsoleUIHelper.PrintSuccess(
-                    "Appointment created successfully!\nStatus: Pending (awaiting admin approval)"
-                );
-            }
+            Database.Appointments.Add(appt);
 
+            ConsoleUIHelper.PrintSuccess("Appointment created (Pending).");
             ConsoleUIHelper.Pause();
         }
-
         private Salon ChooseSalon()
         {
             ConsoleUIHelper.Title("Choose Salon");

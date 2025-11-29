@@ -1,4 +1,5 @@
 ﻿using Berber.Core.Models;
+using Berber.Core.Utils;
 using Berber.UI.Helpers;
 using System;
 using System.Collections.Generic;
@@ -21,24 +22,29 @@ namespace Berber.UI.MenuSystem
         {
             while (true)
             {
-                ConsoleUIHelper.Title("Employee Menu");
+                ConsoleUIHelper.Title("Weekly Schedule");
 
-                Console.WriteLine("Logged in as: " + _employee.Name);
-                ConsoleUIHelper.Line();
-
-                ConsoleUIHelper.PrintOption(1, "View My Appointments");
-                ConsoleUIHelper.PrintOption(2, "Add Availability");
-                ConsoleUIHelper.PrintOption(3, "View Weekly Schedule"); 
+                ConsoleUIHelper.PrintOption(1, "View Weekly Summary");
+                ConsoleUIHelper.PrintOption(2, "View Detailed Day Schedule");
+                ConsoleUIHelper.PrintOption(3, "View My Appointments (full list)");
                 ConsoleUIHelper.PrintOption(4, "Back");
 
                 int choice = InputHelper.ReadInt("Choose: ");
 
                 switch (choice)
                 {
-                    case 1: ViewAppointments(); break;
-                    case 2: AddAvailability(); break;
-                    case 3: new EmployeeScheduleMenu(_employee).Show(); break;  // NEW
-                    case 4: return;
+                    case 1:
+                        ShowWeeklySummary();
+                        break;
+                    case 2:
+                        ShowDetailedDaySchedule();
+                        break;
+                    case 3:
+                        ShowAllAppointments();
+                        break;
+                    case 4:
+                        return;
+
                     default:
                         ConsoleUIHelper.PrintError("Invalid option.");
                         break;
@@ -46,44 +52,98 @@ namespace Berber.UI.MenuSystem
             }
         }
 
-        private void ViewAppointments()
-        {
-            ConsoleUIHelper.Title("My Appointments");
+        // =====================
+        //  WEEKLY SUMMARY
+        // =====================
 
-            if (_employee.Appointments.Count == 0)
+        private void ShowWeeklySummary()
+        {
+            ConsoleUIHelper.Title("Weekly Summary");
+
+            List<DateTime> days = CalendarHelper.GetNext7Days();
+
+            foreach (var day in days)
             {
-                ConsoleUIHelper.PrintError("No appointments.");
-            }
-            else
-            {
-                foreach (Appointment a in _employee.Appointments)
-                {
-                    Console.WriteLine(a.ToString());
-                }
+                int count = _employee.Appointments
+                    .Count(a => a.StartTime.Date == day.Date);
+
+                Console.WriteLine($"{day:ddd yyyy-MM-dd} - {count} appointment(s)");
             }
 
             ConsoleUIHelper.Pause();
         }
 
-        private void AddAvailability()
+        // =====================
+        //  VIEW DETAIL OF DAY
+        // =====================
+
+        private void ShowDetailedDaySchedule()
         {
-            ConsoleUIHelper.Title("Add Availability");
+            DateTime selectedDay =
+                CalendarHelper.SelectDayFromNext7Days("Select a Day");
 
-            DateTime start = InputHelper.ReadDateTime("Start time (yyyy-MM-dd HH:mm): ");
-            DateTime end = InputHelper.ReadDateTime("End time (yyyy-MM-dd HH:mm): ");
-
-            try
+            if (selectedDay == DateTime.MinValue)
             {
-                _employee.Availability.Add(new TimeRange(start, end));
-                ConsoleUIHelper.PrintSuccess("Availability added.");
+                ConsoleUIHelper.PrintError("Invalid day selection.");
+                ConsoleUIHelper.Pause();
+                return;
             }
-            catch (Exception ex)
+
+            ConsoleUIHelper.Title($"Schedule for {selectedDay:ddd yyyy-MM-dd}");
+
+            var list = _employee.Appointments
+                .Where(a => a.StartTime.Date == selectedDay.Date)
+                .OrderBy(a => a.StartTime)
+                .ToList();
+
+            if (list.Count == 0)
             {
-                ConsoleUIHelper.PrintError(ex.Message);
+                ConsoleUIHelper.PrintError("No appointments for this day.");
+                ConsoleUIHelper.Pause();
+                return;
+            }
+
+            ConsoleUIHelper.Line();
+
+            foreach (var appt in list)
+            {
+                Console.WriteLine(
+                    $"{appt.StartTime:HH:mm} - {appt.EndTime:HH:mm} | " +
+                    $"{appt.Service.Name} | Customer: {appt.Customer.Name} | Status: {appt.Status}"
+                );
+            }
+
+            ConsoleUIHelper.Pause();
+        }
+
+        // =====================
+        //  FULL APPOINTMENT LIST
+        // =====================
+
+        private void ShowAllAppointments()
+        {
+            ConsoleUIHelper.Title("All My Appointments");
+
+            var list = _employee.Appointments
+                .OrderBy(a => a.StartTime)
+                .ToList();
+
+            if (list.Count == 0)
+            {
+                ConsoleUIHelper.PrintError("You have no appointments.");
+                ConsoleUIHelper.Pause();
+                return;
+            }
+
+            foreach (var appt in list)
+            {
+                Console.WriteLine(
+                    $"#{appt.Id} | {appt.StartTime:yyyy-MM-dd HH:mm} | " +
+                    $"{appt.Service.Name} | Customer: {appt.Customer.Name} | {appt.Status}"
+                );
             }
 
             ConsoleUIHelper.Pause();
         }
     }
-
 }
