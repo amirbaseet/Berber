@@ -37,7 +37,8 @@ namespace Berber.UI.MenuSystem
                 ConsoleUIHelper.PrintOption(7, "Remove Employee");
                 ConsoleUIHelper.PrintOption(8, "Remove Employee Skill");
                 ConsoleUIHelper.PrintOption(9, "Remove Employee from Salon");
-                ConsoleUIHelper.PrintOption(10, "Back");
+                ConsoleUIHelper.PrintOption(10, "Set Employee Working Hours");
+                ConsoleUIHelper.PrintOption(11, "Back");
 
                 int choice = InputHelper.ReadInt("Choose: ");
 
@@ -52,10 +53,54 @@ namespace Berber.UI.MenuSystem
                     case 7: RemoveEmployee(); break;
                     case 8: RemoveEmployeeSkill(); break;
                     case 9: RemoveEmployeeFromSalon(); break;
-                    case 10: return;
+                    case 10: SetEmployeeWorkingHours(); break;
+                    case 11: return;
                     default: ConsoleUIHelper.PrintError("Invalid choice."); break;
                 }
             }
+        }
+        private void SetEmployeeWorkingHours()
+        {
+            ConsoleUIHelper.Title("Set Employee Working Hours");
+
+            int empId = InputHelper.ReadInt("Employee ID: ");
+            Employee employee = Database.Employees.FirstOrDefault(e => e.Id == empId);
+
+            if (employee == null)
+            {
+                ConsoleUIHelper.PrintError("Employee not found.");
+                ConsoleUIHelper.Pause();
+                return;
+            }
+
+            Console.WriteLine($"Editing working hours for: {employee.Name}");
+
+            Console.WriteLine("\nEnter availability:");
+
+            int startHour = InputHelper.ReadInt("Start hour (0–23): ");
+            int startMinute = InputHelper.ReadInt("Start minute (0–59): ");
+            int endHour = InputHelper.ReadInt("End hour (0–23): ");
+            int endMinute = InputHelper.ReadInt("End minute (0–59): ");
+
+            if (endHour < startHour ||
+               (endHour == startHour && endMinute <= startMinute))
+            {
+                ConsoleUIHelper.PrintError("End time must be after start time.");
+                ConsoleUIHelper.Pause();
+                return;
+            }
+
+            // Clear existing availability
+            employee.Availability.Clear();
+
+            // Create new time-only availability
+            employee.Availability.Add(new TimeRange(
+                new DateTime(1, 1, 1, startHour, startMinute, 0),
+                new DateTime(1, 1, 1, endHour, endMinute, 0)
+            ));
+
+            ConsoleUIHelper.PrintSuccess("Working hours updated successfully!");
+            ConsoleUIHelper.Pause();
         }
 
         private void ViewEmployees()
