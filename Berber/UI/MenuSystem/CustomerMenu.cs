@@ -15,7 +15,7 @@ namespace Berber.UI.MenuSystem
 
         public CustomerMenu(Customer customer)
         {
-            _customer = customer;
+            _customer = customer ?? throw new ArgumentNullException(nameof(customer));
         }
 
         public void Show()

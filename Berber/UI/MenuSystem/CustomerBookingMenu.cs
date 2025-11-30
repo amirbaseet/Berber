@@ -162,7 +162,7 @@ namespace Berber.UI.MenuSystem
             }
 
             int id = InputHelper.ReadInt("Service ID: ");
-            return salon.Services.Find(s => s.Id == id);
+            return salon.Services.FirstOrDefault(s => s.Id == id);  
         }
 
         private Employee ChooseEmployee(Salon salon, Service service)
