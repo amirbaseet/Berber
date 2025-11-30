@@ -91,7 +91,7 @@ namespace Berber.UI.MenuSystem
 
         private void SetWorkingHours()
         {
-            ConsoleUIHelper.Title("Set Working Hours");
+            ConsoleUIHelper.Title("Set Salon Working Hours");
 
             int id = InputHelper.ReadInt("Enter Salon ID: ");
             Salon salon = _salonManager.GetSalonById(id);
@@ -103,30 +103,118 @@ namespace Berber.UI.MenuSystem
                 return;
             }
 
-            Console.WriteLine("Choose day of week:");
-            foreach (DayOfWeek day in Enum.GetValues(typeof(DayOfWeek)))
-            {
-                Console.WriteLine($"{(int)day} - {day}");
-            }
+            Console.WriteLine($"\nEditing working hours for: {salon.Name}");
 
-            int dayChoice = InputHelper.ReadInt("Day: ");
-            DayOfWeek chosenDay = (DayOfWeek)dayChoice;
+            ConsoleUIHelper.Line();
+            Console.WriteLine("1. Set SAME working hours for all days");
+            Console.WriteLine("2. Set working hours for EACH day separately");
+            Console.WriteLine("3. View current working hours");
+            int choice = InputHelper.ReadInt("Choose: ");
 
-            DateTime start = InputHelper.ReadDateTime("Start Time (yyyy-MM-dd HH:mm): ");
-            DateTime end = InputHelper.ReadDateTime("End Time (yyyy-MM-dd HH:mm): ");
+            switch (choice)
+            {
+                case 1:
+                    SetSameHoursForAllDays(salon);
+                    break;
 
-            try
-            {
-                salon.WorkingHours[chosenDay] = new TimeRange(start, end);
-                ConsoleUIHelper.PrintSuccess("Working hours updated.");
-            }
-            catch (Exception ex)
-            {
-                ConsoleUIHelper.PrintError(ex.Message);
+                case 2:
+                    SetHoursForEachDay(salon);
+                    break;
+
+                case 3:
+                    ViewSalonWorkingHours(salon);
+                    break;
+
+                default:
+                    ConsoleUIHelper.PrintError("Invalid option.");
+                    break;
             }
 
             ConsoleUIHelper.Pause();
         }
+        private void SetSameHoursForAllDays(Salon salon)
+        {
+            ConsoleUIHelper.Title("Set Same Working Hours");
+
+            int startHour = InputHelper.ReadInt("Start hour (0–23): ");
+            int startMinute = InputHelper.ReadInt("Start minute (0–59): ");
+            int endHour = InputHelper.ReadInt("End hour (0–23): ");
+            int endMinute = InputHelper.ReadInt("End minute (0–59): ");
+
+            if (endHour < startHour || (endHour == startHour && endMinute <= startMinute))
+            {
+                ConsoleUIHelper.PrintError("End time must be after start time.");
+                return;
+            }
+
+            DateTime open = new DateTime(1, 1, 1, startHour, startMinute, 0);
+            DateTime close = new DateTime(1, 1, 1, endHour, endMinute, 0);
+
+            salon.WorkingHours.Clear();
+
+            foreach (DayOfWeek day in Enum.GetValues(typeof(DayOfWeek)))
+                salon.WorkingHours[day] = new TimeRange(open, close);
+
+            ConsoleUIHelper.PrintSuccess("Working hours set for all days!");
+        }
+
+        private void SetHoursForEachDay(Salon salon)
+        {
+            ConsoleUIHelper.Title("Set Working Hours Per Day");
+
+            salon.WorkingHours.Clear();
+
+            foreach (DayOfWeek day in Enum.GetValues(typeof(DayOfWeek)))
+            {
+                Console.WriteLine($"\n--- {day} ---");
+                Console.WriteLine("Leave blank to set this day as CLOSED.");
+
+                string startInput = InputHelper.ReadString("Start hour (empty = closed): ");
+
+                if (string.IsNullOrWhiteSpace(startInput))
+                {
+                    // Day closed
+                    continue;
+                }
+
+                int startHour = int.Parse(startInput);
+                int startMinute = InputHelper.ReadInt("Start minute (0–59): ");
+                int endHour = InputHelper.ReadInt("End hour (0–23): ");
+                int endMinute = InputHelper.ReadInt("End minute (0–59): ");
+
+                if (endHour < startHour || (endHour == startHour && endMinute <= startMinute))
+                {
+                    ConsoleUIHelper.PrintError("Invalid time range. Skipping this day.");
+                    continue;
+                }
+
+                DateTime open = new DateTime(1, 1, 1, startHour, startMinute, 0);
+                DateTime close = new DateTime(1, 1, 1, endHour, endMinute, 0);
+
+                salon.WorkingHours[day] = new TimeRange(open, close);
+            }
+
+            ConsoleUIHelper.PrintSuccess("Working hours updated!");
+        }
+
+        private void ViewSalonWorkingHours(Salon salon)
+        {
+            ConsoleUIHelper.Title("Current Working Hours");
+
+            foreach (DayOfWeek day in Enum.GetValues(typeof(DayOfWeek)))
+            {
+                if (!salon.WorkingHours.ContainsKey(day))
+                {
+                    Console.WriteLine($"{day}: CLOSED");
+                }
+                else
+                {
+                    var range = salon.WorkingHours[day];
+                    Console.WriteLine($"{day}: {range.Start:HH:mm} - {range.End:HH:mm}");
+                }
+            }
+        }
+
         private void EditSalonName()
         {
             ConsoleUIHelper.Title("Edit Salon Name");
