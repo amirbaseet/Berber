@@ -10,8 +10,29 @@ namespace Berber.Core.Models
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public int DurationMinutes { get; set; }
-        public decimal Price { get; set; }
+        private int _durationMinutes;
+        public int DurationMinutes
+        {
+            get => _durationMinutes;
+            set
+            {
+                if (value <= 0)
+                    throw new ArgumentException("Duration must be positive.");
+                _durationMinutes = value;
+            }
+        }
+
+        private decimal _price;
+        public decimal Price
+        {
+            get => _price;
+            set
+            {
+                if (value < 0)
+                    throw new ArgumentException("Price cannot be negative.");
+                _price = value;
+            }
+        }
 
         public Service(int id, string name, int durationMinutes, decimal price)
         {

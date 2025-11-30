@@ -46,8 +46,9 @@ namespace Berber.Core.Models
 
             TimeRange range = WorkingHours[dateTime.DayOfWeek];
 
-            return dateTime.TimeOfDay >= range.Start.TimeOfDay &&
-                   dateTime.TimeOfDay <= range.End.TimeOfDay;
+            TimeSpan t = dateTime.TimeOfDay;
+            return t >= range.Start && t <= range.End;
+
         }
 
         public override string ToString()

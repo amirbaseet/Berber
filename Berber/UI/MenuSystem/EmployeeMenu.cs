@@ -1,5 +1,6 @@
 ﻿using Berber.Core.Models;
 using Berber.Core.Utils;
+using Berber.Data;
 using Berber.UI.Helpers;
 using System;
 using System.Collections.Generic;
@@ -60,12 +61,17 @@ namespace Berber.UI.MenuSystem
         {
             ConsoleUIHelper.Title("Weekly Summary");
 
-            List<DateTime> days = CalendarHelper.GetNext7Days();
+            // Show the next 7 days (just like customer booking)
+            DateTime start = DateTime.Today;
 
-            foreach (var day in days)
+            for (int i = 0; i < 7; i++)
             {
-                int count = _employee.Appointments
-                    .Count(a => a.StartTime.Date == day.Date);
+                DateTime day = start.AddDays(i);
+
+                int count = Database.Appointments
+                    .Where(a => a.Employee.Id == _employee.Id &&
+                                a.StartTime.Date == day.Date)
+                    .Count();
 
                 Console.WriteLine($"{day:ddd yyyy-MM-dd} - {count} appointment(s)");
             }
@@ -79,22 +85,40 @@ namespace Berber.UI.MenuSystem
 
         private void ShowDetailedDaySchedule()
         {
-            DateTime selectedDay =
-                CalendarHelper.SelectDayFromNext7Days("Select a Day");
+            ConsoleUIHelper.Title("Select a Day");
 
-            if (selectedDay == DateTime.MinValue)
+            DateTime today = DateTime.Today;
+            List<DateTime> next7Days = new List<DateTime>();
+
+            for (int i = 0; i < 7; i++)
+                next7Days.Add(today.AddDays(i));
+
+            // Display the 7-day menu
+            for (int i = 0; i < next7Days.Count; i++)
             {
-                ConsoleUIHelper.PrintError("Invalid day selection.");
+                DateTime d = next7Days[i];
+                Console.WriteLine($"{i + 1}. {d:ddd yyyy-MM-dd}");
+            }
+
+            int choice = InputHelper.ReadInt("Choose day: ");
+
+            if (choice < 1 || choice > 7)
+            {
+                ConsoleUIHelper.PrintError("Invalid selection.");
                 ConsoleUIHelper.Pause();
                 return;
             }
 
-            ConsoleUIHelper.Title($"Schedule for {selectedDay:ddd yyyy-MM-dd}");
+            DateTime selectedDay = next7Days[choice - 1];
 
-            var list = _employee.Appointments
-                .Where(a => a.StartTime.Date == selectedDay.Date)
+            // Filter employee appointments for that day
+            var list = Database.Appointments
+                .Where(a => a.Employee.Id == _employee.Id &&
+                            a.StartTime.Date == selectedDay.Date)
                 .OrderBy(a => a.StartTime)
                 .ToList();
+
+            ConsoleUIHelper.Title($"Schedule for {selectedDay:dddd, yyyy-MM-dd}");
 
             if (list.Count == 0)
             {
@@ -102,8 +126,6 @@ namespace Berber.UI.MenuSystem
                 ConsoleUIHelper.Pause();
                 return;
             }
-
-            ConsoleUIHelper.Line();
 
             foreach (var appt in list)
             {
@@ -115,7 +137,6 @@ namespace Berber.UI.MenuSystem
 
             ConsoleUIHelper.Pause();
         }
-
         // =====================
         //  FULL APPOINTMENT LIST
         // =====================
@@ -124,7 +145,8 @@ namespace Berber.UI.MenuSystem
         {
             ConsoleUIHelper.Title("All My Appointments");
 
-            var list = _employee.Appointments
+            var list = Database.Appointments
+                .Where(a => a.Employee.Id == _employee.Id)
                 .OrderBy(a => a.StartTime)
                 .ToList();
 

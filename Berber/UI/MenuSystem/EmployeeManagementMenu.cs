@@ -74,7 +74,6 @@ namespace Berber.UI.MenuSystem
             }
 
             Console.WriteLine($"Editing working hours for: {employee.Name}");
-
             Console.WriteLine("\nEnter availability:");
 
             int startHour = InputHelper.ReadInt("Start hour (0–23): ");
@@ -93,15 +92,16 @@ namespace Berber.UI.MenuSystem
             // Clear existing availability
             employee.Availability.Clear();
 
-            // Create new time-only availability
+            // Add new availability using TimeSpan
             employee.Availability.Add(new TimeRange(
-                new DateTime(1, 1, 1, startHour, startMinute, 0),
-                new DateTime(1, 1, 1, endHour, endMinute, 0)
+                new TimeSpan(startHour, startMinute, 0),
+                new TimeSpan(endHour, endMinute, 0)
             ));
 
             ConsoleUIHelper.PrintSuccess("Working hours updated successfully!");
             ConsoleUIHelper.Pause();
         }
+
 
         private void ViewEmployees()
         {

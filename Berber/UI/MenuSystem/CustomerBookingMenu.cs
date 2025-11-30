@@ -210,41 +210,37 @@ namespace Berber.UI.MenuSystem
 
             ConsoleUIHelper.Pause();
         }
-        private List<DateTime> GenerateAvailableTimeSlots(Salon salon, Employee employee, Service service, DateTime date)
+        private List<DateTime> GenerateAvailableTimeSlots(
+            Salon salon,
+            Employee employee,
+            Service service,
+            DateTime date)
         {
             List<DateTime> slots = new List<DateTime>();
 
-            // 1. Check if salon has working hours for that weekday
             if (!salon.WorkingHours.ContainsKey(date.DayOfWeek))
                 return slots;
 
-            TimeRange salonHours = salon.WorkingHours[date.DayOfWeek];
+            TimeRange range = salon.WorkingHours[date.DayOfWeek];
 
-            // Convert time-only to full DateTime using selected day
-            DateTime dayStart = new DateTime(date.Year, date.Month, date.Day,
-                salonHours.Start.Hour, salonHours.Start.Minute, 0);
+            DateTime dayStart = date.Date + range.Start;
+            DateTime dayEnd = date.Date + range.End;
 
-            DateTime dayEnd = new DateTime(date.Year, date.Month, date.Day,
-                salonHours.End.Hour, salonHours.End.Minute, 0);
-
-            // Cannot start after this time (service must fit in closing hours)
-            DateTime lastPossibleStart = dayEnd.AddMinutes(-service.DurationMinutes);
-
+            DateTime lastStart = dayEnd.AddMinutes(-service.DurationMinutes);
             DateTime current = dayStart;
 
-            while (current <= lastPossibleStart)
+            while (current <= lastStart)
             {
-                DateTime slotStart = current;
-                DateTime slotEnd = slotStart.AddMinutes(service.DurationMinutes);
+                DateTime slotEnd = current.AddMinutes(service.DurationMinutes);
 
                 bool employeeAvailable =
-                    _employeeManager.IsEmployeeAvailable(employee, slotStart, slotEnd);
+                    _employeeManager.IsEmployeeAvailable(employee, current, slotEnd);
 
                 bool noConflict =
-                    !_appointmentManager.HasConflict(employee, slotStart, slotEnd);
+                    !_appointmentManager.HasConflict(employee, current, slotEnd);
 
                 if (employeeAvailable && noConflict)
-                    slots.Add(slotStart);
+                    slots.Add(current);
 
                 current = current.AddMinutes(15);
             }

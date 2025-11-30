@@ -15,28 +15,19 @@ namespace Berber.Core.Managers
             employee.Availability.Add(availability);
         }
 
-        public bool IsEmployeeAvailable(Employee e, DateTime start, DateTime end)
+        public bool IsEmployeeAvailable(Employee emp, DateTime start, DateTime end)
         {
-            foreach (TimeRange range in e.Availability)
+            TimeSpan startT = start.TimeOfDay;
+            TimeSpan endT = end.TimeOfDay;
+
+            foreach (var av in emp.Availability)
             {
-                // Convert availability (time-of-day) to full DateTime of the booking day
-                DateTime availStart = new DateTime(
-                    start.Year, start.Month, start.Day,
-                    range.Start.Hour, range.Start.Minute, 0
-                );
-
-                DateTime availEnd = new DateTime(
-                    start.Year, start.Month, start.Day,
-                    range.End.Hour, range.End.Minute, 0
-                );
-
-                if (start >= availStart && end <= availEnd)
+                if (startT >= av.Start && endT <= av.End)
                     return true;
             }
 
             return false;
         }
-
         public void AssignService(Employee employee, Service service)
         {
             if (!employee.ServicesCanDo.Contains(service))

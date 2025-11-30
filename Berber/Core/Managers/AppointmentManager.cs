@@ -1,5 +1,7 @@
 ﻿using Berber.Core.Interfaces;
 using Berber.Core.Models;
+using Berber.Core.Models.Enums;
+using Berber.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,28 +23,34 @@ namespace Berber.Core.Managers
                                              Employee employee, Service service,
                                              DateTime startTime)
         {
+            if (customer == null) throw new ArgumentNullException(nameof(customer));
+            if (salon == null) throw new ArgumentNullException(nameof(salon));
+            if (employee == null) throw new ArgumentNullException(nameof(employee));
+            if (service == null) throw new ArgumentNullException(nameof(service));
+
             DateTime endTime = startTime.AddMinutes(service.DurationMinutes);
+            if (!salon.Employees.Contains(employee))
+                throw new InvalidOperationException(
+                    $"Employee {employee.Name} does not work at salon {salon.Name}."
+                );
+            var appointment = new Appointment(id, customer, salon, employee, service, startTime);
 
-            if (HasConflict(employee, startTime, endTime))
-                return null;
+            Database.Appointments.Add(appointment);
+            employee.Appointments.Add(appointment);
 
-            Appointment appt = new Appointment(id, customer, salon, employee, service, startTime);
-
-            _appointments.Add(appt);
-            employee.Appointments.Add(appt);
-
-            return appt;
+            return appointment;
         }
 
-        public bool HasConflict(Employee employee, DateTime start, DateTime end)
+        public bool HasConflict(Employee emp, DateTime start, DateTime end)
         {
-            foreach (Appointment a in employee.Appointments)
-            {
-                if (start < a.EndTime && end > a.StartTime)
-                    return true;
-            }
-            return false;
+            return _appointments.Any(a =>
+                a.Employee.Id == emp.Id &&
+                a.Status != AppointmentStatus.Cancelled &&
+                a.StartTime < end &&
+                a.EndTime > start
+            );
         }
+
 
         public List<Appointment> GetAppointmentsForEmployee(Employee employee)
         {

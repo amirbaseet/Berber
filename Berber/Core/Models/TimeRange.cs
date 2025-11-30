@@ -1,17 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Berber.Core.Models
 {
     public class TimeRange
     {
-        public DateTime Start { get; set; }
-        public DateTime End { get; set; }
+        public TimeSpan Start { get; set; }
+        public TimeSpan End { get; set; }
 
-        public TimeRange(DateTime start, DateTime end)
+        public TimeRange(TimeSpan start, TimeSpan end)
         {
             if (end <= start)
                 throw new ArgumentException("End time must be after start time.");
@@ -21,15 +17,16 @@ namespace Berber.Core.Models
         }
 
         /// <summary>
-        /// Checks if a specific moment is inside this time range.
+        /// Checks if a specific DateTime falls inside the time range (based on TimeOfDay)
         /// </summary>
-        public bool Contains(DateTime time)
+        public bool Contains(DateTime dateTime)
         {
+            TimeSpan time = dateTime.TimeOfDay;
             return time >= Start && time <= End;
         }
 
         /// <summary>
-        /// Checks whether this time range overlaps another time range.
+        /// Checks if two time-only ranges overlap.
         /// </summary>
         public bool Overlaps(TimeRange other)
         {
@@ -38,8 +35,7 @@ namespace Berber.Core.Models
 
         public override string ToString()
         {
-            return $"{Start:yyyy-MM-dd HH:mm} - {End:yyyy-MM-dd HH:mm}";
+            return $"{Start:hh\\:mm} - {End:hh\\:mm}";
         }
-
     }
 }

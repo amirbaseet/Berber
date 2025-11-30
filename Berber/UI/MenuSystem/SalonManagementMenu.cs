@@ -146,9 +146,8 @@ namespace Berber.UI.MenuSystem
                 ConsoleUIHelper.PrintError("End time must be after start time.");
                 return;
             }
-
-            DateTime open = new DateTime(1, 1, 1, startHour, startMinute, 0);
-            DateTime close = new DateTime(1, 1, 1, endHour, endMinute, 0);
+            TimeSpan open = new TimeSpan(startHour, startMinute, 0);
+            TimeSpan close = new TimeSpan(endHour, endMinute, 0);
 
             salon.WorkingHours.Clear();
 
@@ -172,31 +171,28 @@ namespace Berber.UI.MenuSystem
                 string startInput = InputHelper.ReadString("Start hour (empty = closed): ");
 
                 if (string.IsNullOrWhiteSpace(startInput))
-                {
-                    // Day closed
                     continue;
-                }
 
                 int startHour = int.Parse(startInput);
                 int startMinute = InputHelper.ReadInt("Start minute (0–59): ");
                 int endHour = InputHelper.ReadInt("End hour (0–23): ");
                 int endMinute = InputHelper.ReadInt("End minute (0–59): ");
 
-                if (endHour < startHour || (endHour == startHour && endMinute <= startMinute))
+                if (endHour < startHour ||
+                    (endHour == startHour && endMinute <= startMinute))
                 {
                     ConsoleUIHelper.PrintError("Invalid time range. Skipping this day.");
                     continue;
                 }
 
-                DateTime open = new DateTime(1, 1, 1, startHour, startMinute, 0);
-                DateTime close = new DateTime(1, 1, 1, endHour, endMinute, 0);
+                TimeSpan open = new TimeSpan(startHour, startMinute, 0);
+                TimeSpan close = new TimeSpan(endHour, endMinute, 0);
 
                 salon.WorkingHours[day] = new TimeRange(open, close);
             }
 
             ConsoleUIHelper.PrintSuccess("Working hours updated!");
         }
-
         private void ViewSalonWorkingHours(Salon salon)
         {
             ConsoleUIHelper.Title("Current Working Hours");

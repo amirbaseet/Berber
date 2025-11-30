@@ -26,8 +26,8 @@ namespace Berber.Data
             Salon salon = new Salon(1, "Golden Scissors", "Main Street 45");
 
             // Working hours: Monday–Friday 09:00 - 18:00 (time-only)
-            DateTime open = new DateTime(1, 1, 1, 9, 0, 0);   // 09:00
-            DateTime close = new DateTime(1, 1, 1, 18, 0, 0); // 18:00
+            TimeSpan open = new TimeSpan(9, 0, 0);
+            TimeSpan close = new TimeSpan(18, 0, 0);
 
             salon.WorkingHours[DayOfWeek.Monday] = new TimeRange(open, close);
             salon.WorkingHours[DayOfWeek.Tuesday] = new TimeRange(open, close);
@@ -74,16 +74,15 @@ namespace Berber.Data
 
             // Mike: 09:00 - 17:00
             e1.Availability.Add(new TimeRange(
-                new DateTime(1, 1, 1, 9, 0, 0),
-                new DateTime(1, 1, 1, 17, 0, 0)
+                new TimeSpan(9, 0, 0),
+                new TimeSpan(17, 0, 0)
             ));
 
             // Alex: 10:00 - 18:00
             e2.Availability.Add(new TimeRange(
-                new DateTime(1, 1, 1, 10, 0, 0),
-                new DateTime(1, 1, 1, 18, 0, 0)
+                new TimeSpan(10, 0, 0),
+                new TimeSpan(18, 0, 0)
             ));
-
             // Add to database lists
             Database.Employees.Add(e1);
             Database.Employees.Add(e2);

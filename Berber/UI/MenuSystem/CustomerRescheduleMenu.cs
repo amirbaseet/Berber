@@ -170,13 +170,8 @@ namespace Berber.UI.MenuSystem
 
             TimeRange range = salon.WorkingHours[date.DayOfWeek];
 
-            DateTime dayStart = new DateTime(
-                date.Year, date.Month, date.Day,
-                range.Start.Hour, range.Start.Minute, 0);
-
-            DateTime dayEnd = new DateTime(
-                date.Year, date.Month, date.Day,
-                range.End.Hour, range.End.Minute, 0);
+            DateTime dayStart = date.Date + range.Start;
+            DateTime dayEnd = date.Date + range.End;
 
             DateTime lastStart = dayEnd.AddMinutes(-service.DurationMinutes);
             DateTime current = dayStart;
@@ -194,7 +189,7 @@ namespace Berber.UI.MenuSystem
                 if (employeeAvailable && noConflict)
                     slots.Add(current);
 
-                current = current.AddMinutes(15); // interval
+                current = current.AddMinutes(15);
             }
 
             return slots;

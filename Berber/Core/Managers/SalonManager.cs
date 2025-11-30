@@ -49,18 +49,9 @@ namespace Berber.Core.Managers
 
             TimeRange range = salon.WorkingHours[dt.DayOfWeek];
 
-            // Convert time-only to full DateTime for the selected date
-            DateTime openTime = new DateTime(
-                dt.Year, dt.Month, dt.Day,
-                range.Start.Hour, range.Start.Minute, 0
-            );
+            TimeSpan t = dt.TimeOfDay;
 
-            DateTime closeTime = new DateTime(
-                dt.Year, dt.Month, dt.Day,
-                range.End.Hour, range.End.Minute, 0
-            );
-
-            return dt >= openTime && dt <= closeTime;
+            return t >= range.Start && t <= range.End;
         }
     }
 }
